@@ -1,10 +1,8 @@
 function animateOffset() {
   if(offTune >= 20 && offTune <=50 ) {
     h += 2;
-    
   }else if (offTune <= -20 && offTune <=-50){
-    h -= 2;
-    
+    h -= 2;    
   }
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
@@ -14,17 +12,23 @@ function draw() {
 
   ctx.strokeStyle = "white";
   ctx.beginPath();
-  ctx.moveTo(halfWidth*0.75, HEIGHT/2);
-  ctx.lineTo(halfWidth*0.85, HEIGHT/2); 
-  ctx.moveTo(halfWidth*1.15, HEIGHT/2);
-  ctx.lineTo(halfWidth*1.25, HEIGHT/2); 
+  // ctx.moveTo(halfWidth*0.75, HEIGHT/2);
+  // ctx.lineTo(halfWidth*0.85, HEIGHT/2); 
+  // ctx.moveTo(halfWidth*1.15, HEIGHT/2);
+  // ctx.lineTo(halfWidth*1.25, HEIGHT/2);
+  ctx.moveTo(50, HEIGHT/2);
+  ctx.lineTo(100, HEIGHT/2);
+  ctx.moveTo(300, HEIGHT/2); 
+  ctx.lineTo(350, HEIGHT/2);
   ctx.stroke();
   ctx.closePath();
   //Indicator for cent offset
-  ctx.strokeStyle = "green";
-  ctx.beginPath();  
-  ctx.moveTo(halfWidth*0.85, h);
-  ctx.lineTo(halfWidth*1.15, h);
+  ctx.strokeStyle = "grey";
+  ctx.beginPath();
+  ctx.moveTo(100, h);
+  ctx.lineTo(300, h);
+  // ctx.moveTo(halfWidth*0.85, h);
+  // ctx.lineTo(halfWidth*1.15, h);  
   ctx.stroke();
   ctx.closePath();
   
@@ -112,7 +116,7 @@ function holdPitch() {
 
 function updateInfo(){	
     if ( currPitch == -1 ) {
-    $('#freq .inner,#note .inner, #tune .inner').text("--");
+    // $('#freq .inner,#note .inner, #tune .inner').text("____");
     $('#tune .inner').removeClass("sharp flat");
   } else {
 
@@ -133,7 +137,7 @@ function updateInfo(){
 
           $('#tune .inner').addClass("sharp");
           $('#tune .inner').removeClass("flat");
-          $('#tune .inner').text((offTune) );
+          // $('#tune .inner').text((offTune) );
           //log(offTune);
           }
         }

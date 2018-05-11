@@ -43,7 +43,7 @@ var h;
 function init(){
 
   if (isRunning) {
-    $("body").append("<canvas id='cnv'></canvas>");
+    // $("body").append("<canvas id='cnv'></canvas>");
     canvas = document.getElementById("cnv");
     ctx = canvas.getContext("2d");
 
@@ -82,8 +82,6 @@ function onMicStream(stream) {
     //holdPitch();
   }
 
-//unterteilen in draw() und update(),d
-
 //20 Cents max? Differenz in Cents
 //flag if in pitch = true
 //Vergleich mit max offset
@@ -121,8 +119,9 @@ function updatePlay(time) {
 
 function resizeCanvas() {
   if ( canvas.width !== window.innerWidth || canvas.height !== window.innerHeight ) {
-    WIDTH = canvas.width = window.innerWidth;
-    HEIGHT = canvas.height = window.innerHeight;
+    WIDTH = canvas.width;
+    HEIGHT = canvas.height; 
+    // = window.innerHeight;
     h = HEIGHT /2;
   }
 }
