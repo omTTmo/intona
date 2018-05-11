@@ -15,8 +15,9 @@ var audioContext;
 var micStream = null;
 var pitch = null;
 var analyzer = null;
-var ANALYSIS_BUF_SIZE = 1024;
+var ANALYSIS_BUF_SIZE = 2048;
 var buf = new Float32Array(ANALYSIS_BUF_SIZE);
+var buf2 = new Uint8Array(ANALYSIS_BUF_SIZE);
 var convBuf;
 var MIN_PITCH = 50;
 var MAX_PITCH = 2637; //E7 - highest note on violin 
@@ -34,6 +35,10 @@ var tolerance = 20;
 var reference= {};
 var canvas, ctx, freq, note, tune;
 var isRunning = false;
+var offTune = null;
+var linePos = 0;
+var velocity = 0.5;
+var h;
 
 function init(){
 
@@ -46,7 +51,7 @@ function init(){
       alert("Unable to initialize WebGL. Your browser or machine may not support it.");
       return;
     }
-
+    
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     audioContext = new AudioContext();
 
@@ -55,9 +60,10 @@ function init(){
       sampleRate: audioContext.sampleRate,
       bufferSize: ANALYSIS_BUF_SIZE
     });
-    
-    getWav("a1",reference);
+
+    // getWav("a1",reference);
     // Ask user to enable microphone - log error if not allowed
+    // getMicInput = navigator.mediaDevices.getUserMedia;
     getMicInput = Modernizr.prefixed("getUserMedia", navigator);
     getMicInput({audio: true, video: false}, onMicStream, onError);
   }
@@ -70,38 +76,66 @@ function onMicStream(stream) {
   analyzer = audioContext.createAnalyser();
   analyzer.fftSize = 2048;
   micStream.connect( analyzer );
-    // micStream.connect(audioContext.destination);
+  /*this is only necessary when output should be audible
+     micStream.connect(audioContext.destination);*/
     updatePlay();
     //holdPitch();
   }
 
-//unterteilen in draw() und update(),
+//unterteilen in draw() und update(),d
 
 //20 Cents max? Differenz in Cents
 //flag if in pitch = true
 //Vergleich mit max offset
 
 function updatePlay(time) {
+  if (isRunning) {
+    resizeCanvas();    
+    // Doesn't work in Safari...
+    analyzer.getFloatTimeDomainData( buf );
 
-  resizeCanvas();
+    //Does work 
+    // analyzer.getByteTimeDomainData( buf2 );
+    // new Uint8Array(analyzer.frequencyBinCount)
+    // var ac = autoCorrelate(buf, audioContext.sampleRate);
+    currPitch = pitch(buf).freq;    
+    roundCurrPitch = Math.round(currPitch);
 
-  analyzer.getFloatTimeDomainData( buf );
-
-  // var ac = autoCorrelate(buf, audioContext.sampleRate);
-  currPitch = pitch(buf).freq;
-
-  roundCurrPitch = Math.round(currPitch);
-
-  //hier checken ob Ton getroffen
-  holdPitch();
-  updateInfo();
-  draw();  
-
-  frameID = window.requestAnimationFrame( updatePlay );
-  if (!window.requestAnimationFrame){
-    window.requestAnimationFrame = window.webkitRequestAnimationFrame;
+    //hier checken ob Ton getroffen
+    // holdPitch();
+    updateInfo();
+    animateOffset();
+    draw();
+    
+    // console.log("Median"+median(buf));
+    frameID = window.requestAnimationFrame( updatePlay );
+    if (!window.requestAnimationFrame){
+      window.requestAnimationFrame = window.webkitRequestAnimationFrame;
+    }
+  }else{
+    audioContext.close();
+    return;
   }
 }
+
+
+function resizeCanvas() {
+  if ( canvas.width !== window.innerWidth || canvas.height !== window.innerHeight ) {
+    WIDTH = canvas.width = window.innerWidth;
+    HEIGHT = canvas.height = window.innerHeight;
+    h = HEIGHT /2;
+  }
+}
+
+$("#menu .play").on("click", function() {
+  fadeOutMenu();
+})
+
+$("#toMenu").on("click", function(){
+  fadeInMenu();
+})
+
+$("#toMenu").hover(function(){$(this).addClass('rotate')})
 
 //Array pro Anzahl an trails .. circular buffer
 // [ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], ]
@@ -119,20 +153,3 @@ function updatePlay(time) {
 //     trailArray.shift();
 //   }
 // }
-
-function resizeCanvas() {
-  if ( canvas.width !== window.innerWidth || canvas.height !== window.innerHeight ) {
-    WIDTH = canvas.width = window.innerWidth;
-    HEIGHT = canvas.height = window.innerHeight;
-  }
-}
-
-$("#menu .play").on("click", function() {
-  fadeOut();
-})
-
-$("#toMenu").on("click", function(){
-  fadeIn();
-})
-
-$("#toMenu").hover(function(){$(this).addClass('rotate')}); 

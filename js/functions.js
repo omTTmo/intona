@@ -1,27 +1,79 @@
-function draw() {
-	// Draw the input as wave on the canvas
-  ctx.fillStyle = "rgba(0,0,0,0.05)";
-  ctx.fillRect(0,0, WIDTH, HEIGHT);
-  ctx.clearRect(0,0, WIDTH, HEIGHT);
-
-  ctx.strokeStyle = "blue";
-  ctx.beginPath();
-  ctx.lineWidth = 1;
-  ctx.moveTo(0, HEIGHT/2);
-
-  for (var i=0;i<WIDTH;i++) {
-    ctx.lineTo(i*2.3  , HEIGHT/2+(buf[i])*WIDTH);
+function animateOffset() {
+  if(offTune >= 20 && offTune <=50 ) {
+    h += 2;
+    
+  }else if (offTune <= -20 && offTune <=-50){
+    h -= 2;
+    
   }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function draw() {     
+  var halfWidth = WIDTH * 0.5;  
+
+  ctx.strokeStyle = "white";
+  ctx.beginPath();
+  ctx.moveTo(halfWidth*0.75, HEIGHT/2);
+  ctx.lineTo(halfWidth*0.85, HEIGHT/2); 
+  ctx.moveTo(halfWidth*1.15, HEIGHT/2);
+  ctx.lineTo(halfWidth*1.25, HEIGHT/2); 
   ctx.stroke();
   ctx.closePath();
+  //Indicator for cent offset
+  ctx.strokeStyle = "green";
+  ctx.beginPath();  
+  ctx.moveTo(halfWidth*0.85, h);
+  ctx.lineTo(halfWidth*1.15, h);
+  ctx.stroke();
+  ctx.closePath();
+  
 
+	// Draw the input as wave on the canvas
+  // ctx.fillStyle = "rgba(0,0,0,0.05)";
+  // ctx.fillRect(0,0, WIDTH, HEIGHT);
+  // ctx.clearRect(0,0, WIDTH, HEIGHT);
+
+  // ctx.strokeStyle = "blue";
   // ctx.beginPath();
-  // ctx.strokeStyle = "rgba(0, 200, 0, 0.5)";
-  // for (var i = 0; i < trailArray.length; i++) {
-  //   ctx.lineTo(trailArray[i].x, HEIGHT/2+trailArray[i].y*40);
+  // ctx.lineWidth = 1;
+  // ctx.moveTo(0, HEIGHT/2);
+
+  // for (var i=0;i<WIDTH;i++) {
+  //   ctx.lineTo(i*2.3  , HEIGHT/2+(buf[i])*WIDTH);
   // }
+
   // ctx.stroke();
   // ctx.closePath();
+
+          //Alternative for Uint8
+          // ctx.fillStyle = 'rgb(0, 0, 0,0.5)';
+          // ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+          // ctx.lineWidth = 1;
+          // ctx.strokeStyle = 'rgb(0, 0, 200)';
+
+          // ctx.beginPath();
+
+          // var sliceWidth = WIDTH * 1.0 / buf2.length;
+          // var x = 0;
+
+          // for(var i = 0; i < buf2.length; i++) {
+
+          //   var v = buf2[i] / 128.0;
+          //   var y = v * HEIGHT/2;
+
+          //   if(i === 0) {
+          //     ctx.moveTo(x, y);
+          //   } else {
+          //     ctx.lineTo(x, y);
+          //   }
+
+          //   x += sliceWidth;
+          // }
+
+          // ctx.lineTo(canvas.width, canvas.height/2);
+          // ctx.stroke();  
 }
 
 function holdPitch() {
@@ -67,7 +119,7 @@ function updateInfo(){
     $('#freq .inner').text( roundCurrPitch );
     var notes = noteFromPitch( currPitch );
     $('#note .inner').text( keys[notes%12] + getOctNumber(currPitch));
-    var offTune = centOffset( currPitch, notes );
+    offTune = centOffset( currPitch, notes );
 
       if ( offTune == 0 ) {
         $('#tune .inner').removeClass("flat sharp");
@@ -88,7 +140,19 @@ function updateInfo(){
     }
 }
 
-function fadeOut(){
+function median(values) {
+    values.sort(function(a, b) {return a - b;});
+
+    var half = Math.floor(values.length/2);
+
+    if (values.length % 2) {
+        return values[half];
+    } else {
+        return (values[half-1] + values[half]) / 2.0;
+    }
+}
+
+function fadeOutMenu(){
   $("#menu").fadeToggle(1500);
   $(".infobar").fadeToggle(1600).removeClass("hidden");
   isRunning = true;
@@ -98,7 +162,7 @@ function fadeOut(){
     },1200);
 }
 
-function fadeIn(){
+function fadeInMenu(){
     $("#menu").fadeToggle(1200);
   $(".infobar").fadeToggle(700);
   isRunning = false;
@@ -233,7 +297,7 @@ function frequencyFromNoteNumber( note ) {
 }
 
 function centOffset( frequency, note ) {
-  return Math.floor( 1200 * Math.log( frequency / frequencyFromNoteNumber( note )) / Math.log(2) );
+  return Math.floor( 1200 * Math.log( frequency / frequencyFromNoteNumber( note )) / Math.LN2 );
 }
 
 function onError(err) {
