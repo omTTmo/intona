@@ -299,10 +299,23 @@
     url('../fonts/lato-v14-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
     url('../fonts/lato-v14-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
+  html {
+    width: 100%;
+    height: 100%;
+  }
   body {
+    width: 100%;
+    height: 100%; 
     font-family:"Fira Sans", sans-serif;
     letter-spacing: 1em;
-    background:black;
+    /*background:black;*/
+    background: #4F6878;
+    display:flex;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: nowrap;    
+    align-content: stretch;
+    align-items: center;
   }
   div {
     box-sizing: border-box;
@@ -312,28 +325,72 @@
   }
   #cnv{
     z-index:1;
-    position: absolute;
+    /*width:100%;*/
+    /*position: absolute;
     top:0;
-    left:0;
+    left:0;*/
+    
   }
+  /*Edits*/
+  .wrapper{
+    box-shadow: 0 4px 5px 0 rgba(0,0,0,.14), 0 2px 9px 1px rgba(0,0,0,.12), 0 4px 2px -2px rgba(0,0,0,.2);
+    max-width: 400px;
+    max-height: 550px;
+    width:100%;
+    height:100%;
+    flex-direction: column;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    background: #79b7b9;
+  }
+  
+  .flex {
+    display: flex;
+  }
+
+  #note {flex-grow:6;margin-left:5em;}
+  #tune {flex-grow:1;margin-top:0.5em;}
+  #freq {
+    position: absolute;
+    margin-left: 6em;
+  }
+  /*#freq .hz{position: absolute;
+    right:-2.5em;
+    text-align: center;    
+    color: white;
+    font-size: 3em;}*/
+    .hz {
+      position: absolute;
+    font-size: 3em;
+    color: white;
+    right: 40%;
+    }
+  #freq .inner {float:left;}    
+  /*edits end*/
   .inner{
     text-align: center;
-    padding-top: 6vh;
+    /*padding-top: 6vh;*/
     color:white;
     font-size: 3em;
   }
   #freq, #note, #tune, #toMenu {
-    position: absolute;
+    /*position: absolute;*/
     z-index:5;
   }
   #freq{
-    left:2em;
+    /*left:2em;*/
+    max-width: 600px;
+    max-height: 544px;
   }
-  #freq .inner::after{
+  /*#freq .inner::after{
     content: 'Hz';
-  }
+  }*/
   #note{
-    left:30%;
+    margin-top:0.5em;
+    /*left:30%;*/
   }
   #tune{
     left:50%;
@@ -350,9 +407,9 @@
   .flat::after{
     content:'\25BC';
   }
-  .wrapper{
+  /*.wrapper{
     width:100%;
-  }
+  }*/
   #menu{
     position: fixed;
     top:0;
