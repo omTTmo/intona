@@ -345,14 +345,19 @@
     align-content: center;
     align-items: center;
     background: #79b7b9;
-  }
-  
-  .flex {
-    display: flex;
+    background: #79b7b9; /* Old browsers */
+background: -moz-linear-gradient(left, #79b7b9 0%, #56b5b7 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left, #79b7b9 0%,#56b5b7 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right, #79b7b9 0%,#56b5b7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   }
 
-  #note {flex-grow:6;margin-left:5em;}
-  #tune {flex-grow:1;margin-top:0.5em;}
+  .flex {    
+    display: flex;
+    margin-top:0.5em;
+  }
+
+  #note {flex-grow:6;border-right: 2px solid white;min-width:200px;}
+  #tune {flex-grow:1;min-width:100px;}
   #freq {
     position: absolute;
     margin-left: 6em;
@@ -364,40 +369,28 @@
     font-size: 3em;}*/
     .hz {
       position: absolute;
-    font-size: 3em;
-    color: white;
-    right: 40%;
+      font-size: 3em;
+      color: white;
+      right: 40%;
     }
   #freq .inner {float:left;}    
+  #cnv {border-top:2px solid white;border-bottom:2px solid white;}
+
   /*edits end*/
+  #toMenu{
+    flex-grow: 6;
+  }
   .inner{
     text-align: center;
     /*padding-top: 6vh;*/
     color:white;
     font-size: 3em;
   }
-  #freq, #note, #tune, #toMenu {
-    /*position: absolute;*/
-    z-index:5;
-  }
   #freq{
     /*left:2em;*/
     max-width: 600px;
     max-height: 544px;
-  }
-  /*#freq .inner::after{
-    content: 'Hz';
-  }*/
-  #note{
-    margin-top:0.5em;
-    /*left:30%;*/
-  }
-  #tune{
-    left:50%;
-  }
-  #toMenu{
-    right:5%;
-  }
+  }    
   #toMenu .inner div:before{
     content: '\25C1';
   }
@@ -430,7 +423,7 @@
   }
   #welcomeHeader{
     letter-spacing: .2em;
-    font-size:8em;
+    font-size:3.5em;
     color:white;
   }
 
@@ -439,7 +432,7 @@
   }
   #welcomeButton button{    
     border: 1px solid white;
-    background: rgba(0,0,0,.25);
+    background: rgba(0,0,0,.15);
     color: white;
     cursor: pointer;
     width: 112px;

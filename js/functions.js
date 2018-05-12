@@ -1,14 +1,19 @@
 function animateOffset() {
-  if(offTune >= 20 && offTune <=50 ) {
-    h += 2;
-  }else if (offTune <= -20 && offTune <=-50){
-    h -= 2;    
+  if (offTune >= 20 && offTune <= 50 ) {    
+    if (h <= HEIGHT/2 + 50 && h - HEIGHT/2 <= offTune) {h -= 1;}    
+  }else if (offTune <= -20 && offTune >= -50){
+    if (h>= HEIGHT/2 -50 && h + HEIGHT/2 >= offTune){h += 1;}
   }
+  else{
+    h = HEIGHT/2;
+  }
+
+  // console.log("off " +offTune +' h: '+ h);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 function draw() {     
-  var halfWidth = WIDTH * 0.5;  
+  var halfWidth = WIDTH * 0.5;
 
   ctx.strokeStyle = "white";
   ctx.beginPath();
@@ -17,16 +22,16 @@ function draw() {
   // ctx.moveTo(halfWidth*1.15, HEIGHT/2);
   // ctx.lineTo(halfWidth*1.25, HEIGHT/2);
   ctx.moveTo(50, HEIGHT/2);
-  ctx.lineTo(100, HEIGHT/2);
-  ctx.moveTo(300, HEIGHT/2); 
+  ctx.lineTo(160, HEIGHT/2);
+  ctx.moveTo(240, HEIGHT/2);
   ctx.lineTo(350, HEIGHT/2);
   ctx.stroke();
   ctx.closePath();
   //Indicator for cent offset
   ctx.strokeStyle = "grey";
   ctx.beginPath();
-  ctx.moveTo(100, h);
-  ctx.lineTo(300, h);
+  ctx.moveTo(160, h);  
+  ctx.lineTo(240, h);
   // ctx.moveTo(halfWidth*0.85, h);
   // ctx.lineTo(halfWidth*1.15, h);  
   ctx.stroke();
@@ -131,12 +136,12 @@ function updateInfo(){
 
         if (offTune < 0 ) {
 
-          $('#tune .inner').removeClass("sharp");
-          $('#tune .inner').addClass("flat");
+          $('#tune .inner').removeClass("sharp").addClass("flat");
+          // $('#tune .inner').addClass("flat");
         } else {
 
-          $('#tune .inner').addClass("sharp");
-          $('#tune .inner').removeClass("flat");
+          $('#tune .inner').addClass("sharp").removeClass("flat");
+          // $('#tune .inner').removeClass("flat");
           // $('#tune .inner').text((offTune) );
           //log(offTune);
           }
@@ -159,7 +164,7 @@ function median(values) {
 function fadeOutMenu(){
   $("#menu").fadeToggle(1500);
   $(".infobar").fadeToggle(1600).removeClass("hidden");
-  isRunning = true;
+  isRunning = true;  
   setTimeout(
     function(){
       init();
@@ -169,14 +174,16 @@ function fadeOutMenu(){
 function fadeInMenu(){
     $("#menu").fadeToggle(1200);
   $(".infobar").fadeToggle(700);
-  isRunning = false;
-  $("#cnv").fadeOut(1200);
-  setTimeout(
-    function(){
-      $('#cnv').remove();
-    },1200);
+  isRunning = false;    
+  // setTimeout(
+  //   function(){
+  //     $('#cnv').remove();
+  //   },1200);
 }
 
+function getHalfHeight() {
+  return HEIGHT / 2;  
+}
 function getWav(name, dict) {
     var request = new XMLHttpRequest();
     request.open('GET', "sounds/" + encodeURIComponent(name) + ".wav", true);
@@ -216,6 +223,7 @@ function getRandomInt(min, max, prev) {
     }
     return rand;
 }
+
 function autoCorrelate( buf, sampleRate ) {
   var SIZE = buf.length;
   var MAX_SAMPLES = Math.floor(SIZE/2);
@@ -262,6 +270,7 @@ function autoCorrelate( buf, sampleRate ) {
   return -1;
 //  var best_frequency = sampleRate/best_offset;
 }
+
 function average(value) {
     var total = 0;
     var len = value.length;

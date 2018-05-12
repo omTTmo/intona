@@ -1,13 +1,6 @@
-/*
-GNU GENERAL PUBLIC LICENSE v2.0
-
-Copyright (c) 2017 Daniel Tofaute
-
-*/
-//Shorthand for logging
-function log(input) {
-  console.log(input);
-}
+/*--------------------------------
+INTONA - intonation trainer
+--------------------------------*/
 
 var keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 var getMicInput;
@@ -38,12 +31,10 @@ var isRunning = false;
 var offTune = null;
 var linePos = 0;
 var velocity = 0.5;
-var h;
+var h = 0;
 
-function init(){
-
-  if (isRunning) {
-    // $("body").append("<canvas id='cnv'></canvas>");
+function init(){  
+  if (isRunning) {        
     canvas = document.getElementById("cnv");
     ctx = canvas.getContext("2d");
 
@@ -51,11 +42,15 @@ function init(){
       alert("Unable to initialize WebGL. Your browser or machine may not support it.");
       return;
     }
-    
+    //call resize once here to get current value of h for drawing in animateOffset()
+    resizeCanvas();    
+    h = HEIGHT/2;
+
+    //Create AudioContext to work with Audio
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     audioContext = new AudioContext();
 
-    // Initialize pitch detection (MacLeod)
+    // Initialize pitch detection (MacLeod) from pitchfinder.js
     pitch = PitchFinder.MPM({
       sampleRate: audioContext.sampleRate,
       bufferSize: ANALYSIS_BUF_SIZE
@@ -71,15 +66,14 @@ function init(){
 
 // If there is input send it to the Analyzer Node
 function onMicStream(stream) {
-  log("gotStream");
+  console.log("gotStream");
   micStream = audioContext.createMediaStreamSource(stream);
   analyzer = audioContext.createAnalyser();
   analyzer.fftSize = 2048;
   micStream.connect( analyzer );
   /*this is only necessary when output should be audible
      micStream.connect(audioContext.destination);*/
-    updatePlay();
-    //holdPitch();
+    updatePlay();    
   }
 
 //20 Cents max? Differenz in Cents
@@ -88,19 +82,13 @@ function onMicStream(stream) {
 
 function updatePlay(time) {
   if (isRunning) {
-    resizeCanvas();    
+    resizeCanvas();
     // Doesn't work in Safari...
     analyzer.getFloatTimeDomainData( buf );
-
-    //Does work 
-    // analyzer.getByteTimeDomainData( buf2 );
-    // new Uint8Array(analyzer.frequencyBinCount)
-    // var ac = autoCorrelate(buf, audioContext.sampleRate);
+    
     currPitch = pitch(buf).freq;    
     roundCurrPitch = Math.round(currPitch);
-
-    //hier checken ob Ton getroffen
-    // holdPitch();
+    
     updateInfo();
     animateOffset();
     draw();
@@ -122,7 +110,7 @@ function resizeCanvas() {
     WIDTH = canvas.width;
     HEIGHT = canvas.height; 
     // = window.innerHeight;
-    h = HEIGHT /2;
+    // h = HEIGHT /2;
   }
 }
 
