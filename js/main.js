@@ -3,8 +3,8 @@ INTONA - intonation trainer
 --------------------------------*/
 
 var keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-var getMicInput;
-var audioContext;
+var getMicInput = null;
+var audioContext = null;
 var micStream = null;
 var pitch = null;
 var analyzer = null;
@@ -25,30 +25,38 @@ var pitchArray = [];
 var trailArray = [];
 var trailLength = 1024;
 var tolerance = 20;
-var reference= {};
+var ref= {};
 var canvas, ctx, freq, note, tune;
 var isRunning = false;
 var offTune = null;
 var linePos = 0;
 var velocity = 0.5;
 var h = 0;
+var fps = 20;
+var then = 0;
+var elapsed = 0;
 
-function init(){  
-  if (isRunning) {        
+var init = function(arg){
+
+  if (isRunning) {
+    //Prepare the canvas for rendering    
     canvas = document.getElementById("cnv");
     ctx = canvas.getContext("2d");
-
+    //Drop error if browser doesn't support it
     if (!ctx) {
       alert("Unable to initialize WebGL. Your browser or machine may not support it.");
       return;
     }
-    //call resize once here to get current value of h for drawing in animateOffset()
-    resizeCanvas();    
+
+    //Call resize once here to get current value of h for drawing in animateOffset()
+    resizeCanvas();
     h = HEIGHT/2;
 
-    //Create AudioContext to work with Audio
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioContext = new AudioContext();
+    //Create AudioContext to work with audio data
+    if (audioContext === null || audioContext.state !== "running") {
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioContext = new AudioContext();        
+    }
 
     // Initialize pitch detection (MacLeod) from pitchfinder.js
     pitch = PitchFinder.MPM({
@@ -56,56 +64,90 @@ function init(){
       bufferSize: ANALYSIS_BUF_SIZE
     });
 
-    // getWav("a1",reference);
+    if (arg == 'tune') {      
     // Ask user to enable microphone - log error if not allowed
     // getMicInput = navigator.mediaDevices.getUserMedia;
-    getMicInput = Modernizr.prefixed("getUserMedia", navigator);
-    getMicInput({audio: true, video: false}, onMicStream, onError);
+      getUserInput();
+
+    }else if (arg == 'play') {
+      resizeCanvas();
+      getWav("C_short", ref);
+
+      $("#play").click(function() {
+        playSound(ref["C_short"]);
+      });
+    }
   }
 }
 
-// If there is input send it to the Analyzer Node
-function onMicStream(stream) {
+var getUserInput = function(){
+    getMicInput = Modernizr.prefixed("getUserMedia", navigator);
+    getMicInput({audio: true, video: false}, onMicStream, onError);
+}
+
+var onMicStream = function(stream) {
   console.log("gotStream");
+// If there is input send it to the Analyzer Node
   micStream = audioContext.createMediaStreamSource(stream);
   analyzer = audioContext.createAnalyser();
   analyzer.fftSize = 2048;
+
+  // Next line is only for debugging and when output should be audible
+     // micStream.connect(audioContext.destination)
+
   micStream.connect( analyzer );
-  /*this is only necessary when output should be audible
-     micStream.connect(audioContext.destination);*/
-    updatePlay();    
+  fpsInterval = 1000/fps;
+  then = Date.now();
+  startTime = then;
+
+  updateTune();
   }
 
-//20 Cents max? Differenz in Cents
+//20 Cents max? difference in Cents
 //flag if in pitch = true
 //Vergleich mit max offset
 
-function updatePlay(time) {
+var updateTune = function(time) {
   if (isRunning) {
+
     resizeCanvas();
-    // Doesn't work in Safari...
+
+    // Only works in MODERN browsers ( != Safari ;) )
     analyzer.getFloatTimeDomainData( buf );
     
     currPitch = pitch(buf).freq;    
     roundCurrPitch = Math.round(currPitch);
-    
-    updateInfo();
-    animateOffset();
-    draw();
-    
-    // console.log("Median"+median(buf));
-    frameID = window.requestAnimationFrame( updatePlay );
+
+    // Control FPS - from https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
+    // Calculate elapsed time since last loop
+    now = Date.now();
+    elapsed = now - then;
+
+    // If enough time has elapsed, draw the next frame
+    if (elapsed > fpsInterval) {
+
+      then = now - (elapsed % fpsInterval);
+      updateInfo();
+      animateOffset();
+      draw();
+
+    }
+
+    //Callback loop 
+    frameID = window.requestAnimationFrame( updateTune );
     if (!window.requestAnimationFrame){
       window.requestAnimationFrame = window.webkitRequestAnimationFrame;
     }
   }else{
+
+    //If we are not running, disconnect the audio context
     audioContext.close();
-    return;
+    return;    
   }
 }
 
 
-function resizeCanvas() {
+var resizeCanvas = function() {
   if ( canvas.width !== window.innerWidth || canvas.height !== window.innerHeight ) {
     WIDTH = canvas.width;
     HEIGHT = canvas.height; 
@@ -114,29 +156,16 @@ function resizeCanvas() {
   }
 }
 
-$("#menu .play").on("click", function() {
-  fadeOutMenu();
+$("#menu .tune").on("click", function() {
+  fadeOutMenu('tune');
+  isTune();
+})
+
+$('#menu .play').on("click", function(){
+  fadeOutMenu('play');
+  isPlay();
 })
 
 $("#toMenu").on("click", function(){
   fadeInMenu();
 })
-
-$("#toMenu").hover(function(){$(this).addClass('rotate')})
-
-//Array pro Anzahl an trails .. circular buffer
-// [ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], ]
-// [[1, 0.5, 0.3, 0.7], [0, 0, 0, 0], [0, 0, 0, 0]]
-// [[0.1, 0.2, 0.3, 0.4],[1, 0.5, 0.3, 0.7] [0, 0, 0, 0]]
-
-
-// function trail(xP, yP){
-//   trailArray.push({
-//     x: xP,
-//     y: yP
-//   });
-
-//   if (trailArray.length > trailLength) {
-//     trailArray.shift();
-//   }
-// }

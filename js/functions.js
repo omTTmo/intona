@@ -1,4 +1,4 @@
-function animateOffset() {
+var animateOffset = function() {
   if (offTune >= 20 && offTune <= 50 ) {    
     if (h <= HEIGHT/2 + 50 && h - HEIGHT/2 <= offTune) {h -= 1;}    
   }else if (offTune <= -20 && offTune >= -50){
@@ -12,7 +12,7 @@ function animateOffset() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-function draw() {     
+var draw = function() {     
   var halfWidth = WIDTH * 0.5;
 
   ctx.strokeStyle = "white";
@@ -28,7 +28,7 @@ function draw() {
   ctx.stroke();
   ctx.closePath();
   //Indicator for cent offset
-  ctx.strokeStyle = "grey";
+  ctx.strokeStyle = "black";
   ctx.beginPath();
   ctx.moveTo(160, h);  
   ctx.lineTo(240, h);
@@ -119,7 +119,7 @@ function holdPitch() {
   }
 }
 
-function updateInfo(){	
+var updateInfo = function(){	
     if ( currPitch == -1 ) {
     // $('#freq .inner,#note .inner, #tune .inner').text("____");
     $('#tune .inner').removeClass("sharp flat");
@@ -149,7 +149,7 @@ function updateInfo(){
     }
 }
 
-function median(values) {
+var median = function(values) {
     values.sort(function(a, b) {return a - b;});
 
     var half = Math.floor(values.length/2);
@@ -161,30 +161,34 @@ function median(values) {
     }
 }
 
-function fadeOutMenu(){
+var fadeOutMenu = function(arg){
   $("#menu").fadeToggle(1500);
-  $(".infobar").fadeToggle(1600).removeClass("hidden");
-  isRunning = true;  
+  isRunning = true;
   setTimeout(
     function(){
-      init();
+      init(arg);
     },1200);
 }
 
-function fadeInMenu(){
-    $("#menu").fadeToggle(1200);
-  $(".infobar").fadeToggle(700);
-  isRunning = false;    
-  // setTimeout(
-  //   function(){
-  //     $('#cnv').remove();
-  //   },1200);
+var isTune = function (){  
+  $(".infobar").fadeToggle(1600).removeClass("hidden");  
 }
 
-function getHalfHeight() {
+var isPlay = function (){  
+  $(".playbar").fadeToggle(1600).removeClass("hidden");  
+}
+
+var fadeInMenu = function(){
+  $("#menu").fadeToggle(1200);
+  $(".infobar").fadeToggle(700);
+  isRunning = false;
+}
+
+var getHalfHeight = function() {
   return HEIGHT / 2;  
 }
-function getWav(name, dict) {
+
+var getWav = function(name, dict) {
     var request = new XMLHttpRequest();
     request.open('GET', "sounds/" + encodeURIComponent(name) + ".wav", true);
     request.responseType = 'arraybuffer';
@@ -197,7 +201,7 @@ function getWav(name, dict) {
 }
 
 // Play a sound from a data buffer
-function playSound(buffer, rate, callback) {
+var playSound = function(buffer, rate, callback) {  
     if (audioContext === null || audioContext.state !== "running") {
         audioContext = new AudioContext();
     }
@@ -214,7 +218,7 @@ function playSound(buffer, rate, callback) {
 
 // Return a random integer between [min, max)
 // Specify prev to guarantee a different number from prev
-function getRandomInt(min, max, prev) {
+var getRandomInt = function(min, max, prev) {
     var rand = Math.floor(Math.random() * (max - min)) + min;
     if (prev !== undefined) {
         while (prev === rand) {
@@ -224,7 +228,7 @@ function getRandomInt(min, max, prev) {
     return rand;
 }
 
-function autoCorrelate( buf, sampleRate ) {
+var autoCorrelate = function( buf, sampleRate ) {
   var SIZE = buf.length;
   var MAX_SAMPLES = Math.floor(SIZE/2);
   var best_offset = -1;
@@ -271,7 +275,7 @@ function autoCorrelate( buf, sampleRate ) {
 //  var best_frequency = sampleRate/best_offset;
 }
 
-function average(value) {
+var average = function(value) {
     var total = 0;
     var len = value.length;
     for(i = 0; i < len; i++) {
@@ -281,13 +285,13 @@ function average(value) {
 }
 
 //From http://www.sengpielaudio.com/Rechner-centfrequenz.htm
-function octFromFreq(freq)
+var octFromFreq = function(freq)
 {
   var oct = (Math.log(freq) - Math.log (261.626)) / Math.log (2) + 4.0;
   return oct;
 }
 
-function getOctNumber(freq) {
+var getOctNumber = function(freq) {
   var lnote = octFromFreq(freq);
   var oct = Math.floor(lnote);
   var offset = 50.0;
@@ -300,19 +304,19 @@ function getOctNumber(freq) {
 }
 //end sengpiel
 
-function noteFromPitch( frequency ) {
+var noteFromPitch = function( frequency ) {
   var noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
   return Math.round( noteNum ) + 69;
 }
 
-function frequencyFromNoteNumber( note ) {
+var frequencyFromNoteNumber = function( note ) {
   return 440 * Math.pow(2,(note-69)/12);
 }
 
-function centOffset( frequency, note ) {
+var centOffset = function( frequency, note ) {
   return Math.floor( 1200 * Math.log( frequency / frequencyFromNoteNumber( note )) / Math.LN2 );
 }
 
-function onError(err) {
+var onError = function(err) {
     console.error(err);
 }
